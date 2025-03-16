@@ -1,0 +1,12 @@
+{
+	"images": [
+		{
+			"file": "/frames/dark.png",
+			"padding": 180
+		},
+		{
+			"file": "/frames/light.png",
+			"padding": 180
+		}
+	]
+}
