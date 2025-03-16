@@ -1,135 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Avatar Generator</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-  </head>
 
-  <body>
-    <h1>Create an avatar to show your union support!</h1>
-    <p>To save an image, right click it and select "Save Image".</p>
-    <div id="main">
-      <div class="input">
-        <div id="uploaded-frame"></div>
-        <button id="inp-button">upload an image</button>
-        <input type="file" id="inp" />
-      </div>
-      <div id="frames" class="default-frames">
-        Loading...
-      </div>
+<head>
+  <title>Avatar Generator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <h1>Create an avatar to show your union support!</h1>
+  <p>To save an image, right click it and select "Save Image".</p>
+  <div id="main">
+    <div class="input">
+      <div id="uploaded-frame"></div>
+      <button id="inp-button">upload an image</button>
+      <input type="file" id="inp" />
     </div>
-    <p style="font-size: 12px;">Note: Images are not transferred or stored remotely; processing is completed on your computer.</p>
+    <div id="frames" class="default-frames">
+      Loading...
+    </div>
+  </div>
+  <p style="font-size: 12px;">Note: Images are not transferred or stored remotely; processing is completed on your
+    computer.</p>
 
-    <script>
-      const loadImage = (src) =>
-        new Promise((resolve, reject) => {
-          const image = new Image();
-          image.src = src;
-          image.alt = "A frame for your avatar to show support for Times Tech Guild";
-          image.onload = () => resolve(image);
-          image.onerror = reject;
-        });
+  <script>
+    let frames = {};
 
-      async function loadImageManifest() {
-        const res = await fetch("./images.txt");
-        const text = await res.text();
-
-        // parse a line seperated text file into an
-        // array of image paths
-        const array = text
-          .split("\n")
-          .map((f) => `frames/${f.trim()}`)
-          .filter((f) => f.endsWith(".png"));
-
-        return array;
-      }
-
-      async function loadFrameImages() {
-        const frameUrls = await loadImageManifest();
-        return Promise.all(frameUrls.map(loadImage));
-      }
-
-      function render(profilePic, framePic) {
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-
-        // the dimension of the resulting image should
-        // be somewhere between 512px and 1024px
-        const dimension = Math.min(
-          Math.max(profilePic.width, profilePic.height, 512),
-          1024
-        );
-
-        // set the the canvas to the resulting image size (a square)
-        canvas.width = dimension;
-        canvas.height = dimension;
-
-        // if the image is in landscape mode (aspectRatio > 1) it will overflow horizontally,
-        // if it's in portrait mode it will overflow vertically.
-        const aspectRatio = profilePic.width / profilePic.height;
-        const [profilePicW, profilePicH] =
-          aspectRatio > 1
-            ? [dimension * aspectRatio, dimension] // scale width outside dimension
-            : [dimension, dimension / aspectRatio]; // scale height outside dimension
-
-        // draw the picture at the center of the canvas
-        const x = (dimension - profilePicW) / 2;
-        const y = (dimension - profilePicH) / 2;
-        context.drawImage(profilePic, x, y, profilePicW, profilePicH);
-
-        // draw frame (if there is one)
-        if (framePic) {
-          context.drawImage(framePic, 0, 0, dimension, dimension);
-        }
-
-        const imgEl = document.createElement("img");
-        imgEl.src = canvas.toDataURL("image/png");
-        return imgEl;
-      }
-
-      const framePicsPromise = loadFrameImages();
-      
-      window.addEventListener("DOMContentLoaded", async () => {
-        const framePics = await framePicsPromise;
-
-        const uploadBtn = document.getElementById("inp-button");
-        const frameEl = document.getElementById("frames");
-        const uploadedFrameEl = document.getElementById("uploaded-frame");
-
-        // render initial gallery of empty frames
-        frameEl.innerHTML = "";
-        framePics.forEach((framePic) => frameEl.appendChild(framePic));
-
-        uploadBtn.addEventListener("click", () => {
-          document.getElementById("inp").click();
-        });
-
-        document.getElementById("inp").onchange = async ({ target }) => {
-          try {
-            frameEl.innerHTML = "Loading...";
-            uploadedFrameEl.innerHTML = "";
-
-            const profilePicUrl = URL.createObjectURL(target.files[0]);
-            const profilePic = await loadImage(profilePicUrl);
-
-            uploadedFrameEl.appendChild(render(profilePic));
-
-            frameEl.innerHTML = "";
-            frameEl.classList.remove("default-frames");
-
-            // render each frame over the profile pic
-            framePics.forEach((framePic) => {
-              const imgEl = render(profilePic, framePic);
-              frameEl.appendChild(imgEl);
-            });
-            uploadBtn.innerText = "change photo";
-          } catch (err) {
-            console.log(err);
-          }
-        };
+    const loadImage = (details) =>
+      new Promise((resolve, reject) => {
+        const image = new Image();
+        image.src = details.file;
+        image.alt = "A frame for your avatar to show support for ProPublica Guild";
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        details.image = image;
       });
-    </script>
-  </body>
+
+    async function loadImageManifest() {
+      const res = await fetch("./images.json");
+      const manifest = await res.json();
+      frames = manifest.images;
+    }
+
+    async function loadFrameImages() {
+      await loadImageManifest();
+      return Promise.all(frames.map(loadImage));
+    }
+
+    function render(profilePic, frame) {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      // account for the frame padding
+      let padding = 0;
+      if (frame && frame.padding > 0) {
+        padding = frame.padding;
+      }
+
+      // the dimension of the resulting image should
+      // be somewhere between 512px and 1024px
+      const dimension = Math.min(
+        Math.max(profilePic.width, profilePic.height, 512),
+        1024
+      );
+
+      // scale the padding according to the dimension
+      padding = padding * (dimension - 512) / 512;
+
+      // set the the canvas to the resulting image size (a square)
+      canvas.width = dimension;
+      canvas.height = dimension;
+
+      const paddedDimension = dimension - (2 * padding);
+
+      // if the image is in landscape mode (aspectRatio > 1) it will overflow horizontally,
+      // if it's in portrait mode it will overflow vertically.
+      const aspectRatio = profilePic.width / profilePic.height;
+      const [profilePicW, profilePicH] =
+        aspectRatio > 1
+          ? [paddedDimension * aspectRatio, paddedDimension] // scale width outside dimension
+          : [paddedDimension, paddedDimension / aspectRatio]; // scale height outside dimension
+
+      // draw the picture at the center of the canvas
+      const x = (paddedDimension - profilePicW) / 2 + padding;
+      const y = (paddedDimension - profilePicH) / 2 + padding;
+      context.drawImage(profilePic, x, y, profilePicW, profilePicH);
+
+      // draw frame (if there is one)
+      if (frame) {
+        context.drawImage(frame.image, 0, 0, dimension, dimension);
+      }
+
+      const imgEl = document.createElement("img");
+      imgEl.src = canvas.toDataURL("image/png");
+      return imgEl;
+    }
+
+    const framePicsPromise = loadFrameImages();
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      const framePics = await framePicsPromise;
+
+      const uploadBtn = document.getElementById("inp-button");
+      const frameEl = document.getElementById("frames");
+      const uploadedFrameEl = document.getElementById("uploaded-frame");
+
+      // render initial gallery of empty frames
+      frameEl.innerHTML = "";
+      framePics.forEach((framePic) => frameEl.appendChild(framePic));
+
+      uploadBtn.addEventListener("click", () => {
+        document.getElementById("inp").click();
+      });
+
+      document.getElementById("inp").onchange = async ({ target }) => {
+        frameEl.innerHTML = "Loading...";
+        uploadedFrameEl.innerHTML = "";
+
+        const profilePicUrl = URL.createObjectURL(target.files[0]);
+        const profilePic = await loadImage({
+          file: profilePicUrl
+        });
+
+        uploadedFrameEl.appendChild(render(profilePic));
+
+        frameEl.innerHTML = "";
+        frameEl.classList.remove("default-frames");
+
+        // render each frame over the profile pic
+        frames.forEach((frame) => {
+          const imgEl = render(profilePic, frame);
+          frameEl.appendChild(imgEl);
+        });
+        uploadBtn.innerText = "change photo";
+      };
+    });
+  </script>
+</body>
+
 </html>
