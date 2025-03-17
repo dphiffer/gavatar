@@ -17,12 +17,12 @@ make build         generate version.txt
 environments
 ------------
 - production
-  https://propublicaguild.phiffer.org/
+  https://avatar.propublicaguild.org/
 
 troubleshooting
 ---------------
-- verify the sha-1 and the timestamp at https://propublicaguild.phiffer.org/version.txt
-- verify that the correct images are included in https://propublicaguild.phiffer.org/images.json
+- verify the sha-1 and the timestamp at https://avatar.propublicaguild.org/version.txt
+- verify that the correct images are included in https://avatar.propublicaguild.org/images.json
 
 ෴෴෴෴෴෴෴෴෴
 ෴෴෴෴෴
