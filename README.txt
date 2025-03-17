@@ -14,11 +14,6 @@ commands
 make dev           run local dev server at port 8000
 make build         generate version.txt
 
-releases
---------
-- a tag prefixed with `v` will trigger a production release
-- a merge to `main` will trigger a staging release
-
 environments
 ------------
 - production
