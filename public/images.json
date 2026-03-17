@@ -10,11 +10,11 @@
 		},
 		{
 			"file": "/frames/voted-dark.png",
-			"padding": 170
+			"padding": 168
 		},
 		{
 			"file": "/frames/voted-light.png",
-			"padding": 170
+			"padding": 168
 		}
 	]
 }
