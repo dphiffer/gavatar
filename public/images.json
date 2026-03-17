@@ -7,6 +7,14 @@
 		{
 			"file": "/frames/light.png",
 			"padding": 180
+		},
+		{
+			"file": "/frames/voted-dark.png",
+			"padding": 180
+		},
+		{
+			"file": "/frames/voted-light.png",
+			"padding": 180
 		}
 	]
 }
