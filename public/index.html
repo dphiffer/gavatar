@@ -38,7 +38,7 @@
       });
 
     async function loadImageManifest() {
-      const res = await fetch("./images.json");
+      const res = await fetch("./frames.json");
       const manifest = await res.json();
       frames = manifest.images;
     }

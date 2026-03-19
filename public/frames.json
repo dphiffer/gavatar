@@ -9,11 +9,11 @@
 			"padding": 180
 		},
 		{
-			"file": "/frames/voted-dark.png",
+			"file": "/frames/ivoted-dark.png",
 			"padding": 165
 		},
 		{
-			"file": "/frames/voted-light.png",
+			"file": "/frames/ivoted-light.png",
 			"padding": 165
 		}
 	]
