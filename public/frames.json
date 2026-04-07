@@ -9,6 +9,14 @@
 			"padding": 180
 		},
 		{
+			"file": "/frames/onstrike-dark.png",
+			"padding": 165
+		},
+		{
+			"file": "/frames/onstrike-light.png",
+			"padding": 165
+		},
+		{
 			"file": "/frames/ivoted-dark.png",
 			"padding": 165
 		},
